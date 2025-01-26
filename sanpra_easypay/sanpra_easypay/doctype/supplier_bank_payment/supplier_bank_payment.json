@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:SBP{######}",
+ "creation": "2025-01-20 21:43:00.088837",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_lzlu",
+  "from_date",
+  "account_paid_from",
+  "get_payment_entries",
+  "column_break_owmb",
+  "to_date",
+  "account_currency_from",
+  "column_break_xhhn",
+  "file_sequence_number",
+  "account_no",
+  "section_break_knjb",
+  "payment_entry_details",
+  "header_string",
+  "final_string",
+  "amended_from",
+  "api_logs_tab",
+  "otp_api_log_details",
+  "bulk_payment_api_log_details",
+  "payment_status_api_log_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_lzlu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "get_payment_entries",
+   "fieldtype": "Button",
+   "label": "Get Payment Entries"
+  },
+  {
+   "fieldname": "column_break_owmb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_knjb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_entry_details",
+   "fieldtype": "Table",
+   "label": "Payment Entry Details",
+   "options": "Payment Entry Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "account_paid_from",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account Paid (From)",
+   "options": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Supplier Bank Payment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "INR",
+   "fieldname": "account_currency_from",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account Currency (From)",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_logs_tab",
+   "fieldtype": "Tab Break",
+   "label": "API Logs"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "otp_api_log_details",
+   "fieldtype": "Table",
+   "label": "OTP API Log Details",
+   "options": "OTP API Log Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "bulk_payment_api_log_details",
+   "fieldtype": "Table",
+   "label": "Bulk Payment API Log Details",
+   "options": "Bulk Payment API Log Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_status_api_log_details",
+   "fieldtype": "Table",
+   "label": "Payment Status API Log Details",
+   "options": "Payment Status API Log Details"
+  },
+  {
+   "fieldname": "column_break_xhhn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "file_sequence_number",
+   "fieldtype": "Data",
+   "label": "File Sequence Number",
+   "no_copy": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "account_paid_from.bank_account_no",
+   "fieldname": "account_no",
+   "fieldtype": "Data",
+   "label": "Account No.",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "final_string",
+   "fieldtype": "Small Text",
+   "label": "Final String",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "header_string",
+   "fieldtype": "Small Text",
+   "label": "Header String",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-01-23 13:02:19.854037",
+ "modified_by": "Administrator",
+ "module": "Sanpra Easypay",
+ "name": "Supplier Bank Payment",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
