@@ -1,6 +1,6 @@
 // Copyright (c) 2025, Sanpra Software Solutions and contributors
 // For license information, please see license.txt
-
+let show_dialog = false
 frappe.ui.form.on("Supplier Bank Payment", {
 	async get_payment_entries(frm) {
         frm.clear_table("payment_entry_details")
@@ -19,13 +19,8 @@ frappe.ui.form.on("Supplier Bank Payment", {
         }
         frm.refresh_fields()
 	},
-    account_paid_from(frm){
-        console.log(frm.is_dirty())
-    },
     refresh: function (frm) {
 
-
-/* CSS */
 
     const css1 = `
     .btn-gradient-skyblue {
@@ -57,8 +52,6 @@ style1.type = 'text/css';
 style1.innerHTML = css1;
 document.head.appendChild(style1);
 
-
-
         if(frm.doc.file_sequence_number && frm.doc.docstatus == 1){
             let status_btn = frm.add_custom_button('Check Status', async function () {
                 await frm.call({
@@ -74,17 +67,25 @@ document.head.appendChild(style1);
         }
         if (!frm.doc.file_sequence_number && frm.doc.docstatus == 1) {
             let button = frm.add_custom_button('Make Payment', async function () {
-                let sendOtpResponse = await frm.call({
+                let OtpResponse = await frm.call({
                     method: "get_otp",
                     doc:frm.doc,
                     freeze: 'true'
                 });
-                frappe.show_alert({
-                    message: __('OTP Sent to your registered mobile number!'),
-                    indicator: 'green'
-                }, 5);
-
-                console.log(sendOtpResponse);
+                if (OtpResponse.message.toLowerCase() === "success"){
+                    frappe.show_alert({
+                        message: __('OTP Sent to your registered mobile number!'),
+                        indicator: 'green'
+                    }, 5);
+                    show_dialog = true
+                    
+                }else{
+                    frappe.show_alert({
+                        message: __('Something Went Wrong'),
+                        indicator: 'red'
+                    }, 5);
+                }
+                
 
                 const otp_dialog = new frappe.ui.Dialog({
                     title: 'Enter OTP',
@@ -111,8 +112,11 @@ document.head.appendChild(style1);
                         console.log(makePaymentResponse);
                         
                     },
+                    
                 });
-                otp_dialog.show();
+                if(show_dialog){
+                    otp_dialog.show();
+                }
             });
 
             const css = `
