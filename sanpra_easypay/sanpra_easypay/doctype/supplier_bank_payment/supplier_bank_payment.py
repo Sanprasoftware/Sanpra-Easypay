@@ -81,7 +81,7 @@ class SupplierBankPayment(Document):
 	PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
 	OTP_API_URL = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Create"
 	PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
-	REVERSE_PAYMENT_URL = "https://apibankingonesandbox.icicibank.com/api/v1/ReverseMis"
+	REVERSE_PAYMENT_URL = "https://apibankingone.icicibank.com/api/v1/ReverseMis"
 	API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
 	SESSION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
 	IV = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
@@ -149,7 +149,6 @@ class SupplierBankPayment(Document):
 
 			response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
 			otp_log["encrypted_response"] = str(response.json())
-
 			if response:
 				decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
 				decrypted_data = json.loads(decrypted_data)
@@ -168,6 +167,8 @@ class SupplierBankPayment(Document):
 			otp_log["log_time"] = frappe.utils.now()
 			self.append("otp_api_log_details", otp_log)
 			self.save()
+		if not decrypted_data:
+			decrypted_data = {}
 		return decrypted_data.get('MESSAGE') or decrypted_data.get('Message') or None
 
 	@frappe.whitelist()
