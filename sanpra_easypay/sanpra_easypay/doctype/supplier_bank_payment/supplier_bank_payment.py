@@ -77,16 +77,20 @@ class SupplierBankPayment(Document):
 
 	# Paths for keys and API URLs
 	current_path = os.path.dirname(os.path.abspath(__file__))
-	PUBLIC_KEY_FILE = os.path.join(current_path, "server.crt")
-	PRIVATE_KEY_FILE = os.path.join(current_path, "pri_key.pem")
-	OTP_API_URL = "https://apibankingonesandbox.icicibank.com/api/Corporate/CIB/v1/Create"
-	PAYMENT_API_URL = "https://apibankingonesandbox.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
+	PUBLIC_KEY_FILE = os.path.join(current_path, "prod_pub_key.crt")
+	PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
+	OTP_API_URL = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Create"
+	PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
 	REVERSE_PAYMENT_URL = "https://apibankingonesandbox.icicibank.com/api/v1/ReverseMis"
-	API_KEY = "SHUyF6MtXmvgtW1OnsWS6VWt1nAu4J2e"
+	API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
 	SESSION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
 	IV = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
+	AGGR_ID = "BULK0079"
+	AGGR_NAME = "BASTAR"
+	CORP_ID = "596778175"
+	USER_ID = "MOHAMMAD"
+	URN = "SR263840153"
 	
-
 	def encrypt_data(self, data, session_key, iv):
 		cipher = AES.new(session_key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
 		padded_data = pad(data.encode('utf-8'), AES.block_size)
@@ -121,11 +125,11 @@ class SupplierBankPayment(Document):
 		decrypted_data = None
 		try:
 			payload = json.dumps({
-				"AGGRID": "BULK0079",
-				"AGGRNAME": "BASTAR",
-				"CORPID": "SESPRODUCT",
-				"USERID": "HARUN",
-				"URN": "SR263840153",
+				"AGGRID": self.AGGR_ID,
+				"AGGRNAME": self.AGGR_NAME,
+				"CORPID": self.CORP_ID,
+				"USERID": self.USER_ID,
+				"URN": self.URN,
 				"UNIQUEID": UNIQUEID
 			})
 
@@ -175,11 +179,11 @@ class SupplierBankPayment(Document):
 			sample_str = str(self.final_string)
 			encoded_str = base64.b64encode(sample_str.encode("utf-8")).decode("utf-8")
 			payload = json.dumps({
-				"AGGR_ID": "BULK0079",
-				"AGGR_NAME": "BASTAR",
-				"CORP_ID": "SESPRODUCT",
-				"USER_ID": "HARUN",
-				"URN": "SR263840153",
+				"AGGR_ID": self.AGGR_ID,
+				"AGGR_NAME": self.AGGR_NAME,
+				"CORP_ID": self.CORP_ID,
+				"USER_ID": self.USER_ID,
+				"URN": self.URN,
 				"UNIQUE_ID": UNIQUEID,
 				"FILE_DESCRIPTION": "TEST FILE",
 				"AGOTP": otp,
@@ -233,10 +237,10 @@ class SupplierBankPayment(Document):
 		FILE_SEQ_NUM = str(file_seq_no)
 		try:
 			payload = json.dumps({
-				"AGGRID": "BULK0079",
-				"CORPID": "SESPRODUCT",
-				"USERID": "SESPRODUCT.BAN339226",
-				"URN": "SR263840153",
+				"AGGRID": self.AGGR_ID,
+				"CORPID": self.CORP_ID,
+				"USERID": self.USER_ID,
+				"URN": self.URN,
 				"ISENCRYPTED": "N",
 				"UNIQUEID": UNIQUEID,
 				"FILESEQNUM": FILE_SEQ_NUM
