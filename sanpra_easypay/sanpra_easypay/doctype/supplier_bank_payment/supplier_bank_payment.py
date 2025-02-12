@@ -109,11 +109,21 @@ class SupplierBankPayment(Document):
 		encrypted_key = cipher_rsa.encrypt(session_key)
 		return base64.b64encode(encrypted_key).decode('utf-8')
 
+	def fix_base64_padding(data):
+		# Add necessary padding to make the base64 string valid
+		padding = len(data) % 4
+		if padding != 0:
+			data += '=' * (4 - padding)
+		return data
+
 	def decrypt_data(self, encrypted_data, encrypted_key):
 		with open(self.PRIVATE_KEY_FILE, "rb") as key_file:
 			private_key = RSA.import_key(key_file.read())
 
-		encrypted_key_bytes = base64.b64decode(encrypted_key)
+		# Ensure the base64 key is properly padded
+		encrypted_key_bytes = fix_base64_padding(encrypted_key)
+		encrypted_key_bytes = base64.b64decode(encrypted_key_bytes)
+		
 		cipher = PKCS1_v1_5.new(private_key)
 		session_key = cipher.decrypt(encrypted_key_bytes, None)
 
@@ -121,6 +131,7 @@ class SupplierBankPayment(Document):
 		encrypted_data_bytes = base64.b64decode(encrypted_data)[16:]
 		cipher = AES.new(session_key, AES.MODE_CBC, iv)
 		plaintext = unpad(cipher.decrypt(encrypted_data_bytes), AES.block_size)
+		
 		return plaintext.decode("utf-8")
 
 	@frappe.whitelist()
@@ -154,7 +165,7 @@ class SupplierBankPayment(Document):
 
 		response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
 		otp_log["encrypted_response"] = str(response.json())
-		frappe.throw(str(response.json()))
+		# frappe.throw(str(response.json()))
 		if response:
 			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
 			decrypted_data = json.loads(decrypted_data)
