@@ -97,7 +97,7 @@ class SupplierBankPayment(Document):
 	URN = "SR263840153"
 	
 	def encrypt_data(self, data, session_key, iv):
-		cipher = AES.new(session_key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+		cipher = AES.new(session_key, AES.MODE_CBC, iv)
 		padded_data = pad(data.encode('utf-8'), AES.block_size)
 		encrypted_data = cipher.encrypt(padded_data)
 		return base64.b64encode(encrypted_data).decode('utf-8')
@@ -106,7 +106,7 @@ class SupplierBankPayment(Document):
 		with open(self.PUBLIC_KEY_FILE, 'rb') as f:
 			public_key = RSA.import_key(f.read())
 		cipher_rsa = PKCS1_v1_5.new(public_key)
-		encrypted_key = cipher_rsa.encrypt(session_key.encode('utf-8'))
+		encrypted_key = cipher_rsa.encrypt(session_key)
 		return base64.b64encode(encrypted_key).decode('utf-8')
 
 	def decrypt_data(self, encrypted_data, encrypted_key):
