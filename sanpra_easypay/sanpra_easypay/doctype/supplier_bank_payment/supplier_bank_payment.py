@@ -35,47 +35,50 @@ class SupplierBankPayment(Document):
         
 	@frappe.whitelist()
 	def get_pe_details(self):
-		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay"}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_deduction_amount"])
+		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":1}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_deduction_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
 		
 		for i in pe_docs:
+			is_skip = False
 			def_bank_acc,acc_no,ifsc_code = frappe.get_value("Supplier",i.get("party"),["default_party_bank_account","party_account_number,party_branch_code"]) or (None,None,None)
 			if not acc_no:
-				frappe.throw(f"Account No. Mandatory for {i.get('party')}")
+				frappe.msgprint(f"Entry Skipped due to missing account No.for {i.get('party')}")
+				is_skip = True
 			if not ifsc_code:
-				frappe.throw(f"IFSC Code is Mandatory for {i.get('party')}")
+				frappe.msgprint(f"Entry Skipped due to missing IFSC Code for {i.get('party')}")
+				is_skip = True
 			if not def_bank_acc:
-				frappe.throw(f"Default Bank Account is Mandatory for {i.get('party')}")
-			is_wib = 1 if frappe.get_value("Bank Account",def_bank_acc,"bank") == "ICICI BANK" else 0
-			beneficiary_str = ""
-			beneficiary_str+="MCW|" if is_wib else "MCO|"
-			beneficiary_str+=str(acc_no+"|")
-			beneficiary_str+=str(acc_no[:4]+"|") if is_wib else "0011|"
-			beneficiary_str+=str(i.get("party_name","")+"|")
-			beneficiary_str+=str(i.get("paid_amount",""))+"|"
-			beneficiary_str+=str(i.get("paid_to_account_currency","")+"|")
-			beneficiary_str+=str(i.get("remark","Remark")+"|")	
-			beneficiary_str+=str(ifsc_code+"|") if is_wib else "NFT|"
-			beneficiary_str+="WIB^" if is_wib else str(ifsc_code+"^")
+				frappe.msgprint(f"Entry Skipped due to missing Default Bank Account for {i.get('party')}")
+				is_skip = True
+			if not is_skip:
+				is_wib = 1 if frappe.get_value("Bank Account",def_bank_acc,"bank") == "ICICI BANK" else 0
+				beneficiary_str = ""
+				beneficiary_str+="MCW|" if is_wib else "MCO|"
+				beneficiary_str+=str(acc_no+"|")
+				beneficiary_str+=str(acc_no[:4]+"|") if is_wib else "0011|"
+				beneficiary_str+=str(i.get("party_name","")+"|")
+				beneficiary_str+=str(i.get("paid_amount",""))+"|"
+				beneficiary_str+=str(i.get("paid_to_account_currency","")+"|")
+				beneficiary_str+=str(i.get("remark","Remark")[:6]+"|")	
+				beneficiary_str+=str(ifsc_code+"|") if is_wib else "NFT|"
+				beneficiary_str+="WIB^" if is_wib else str(ifsc_code+"^")
 
-			self.append("payment_entry_details", {
-				"payment_entry": i.get("name", ""),
-				"posting_date":i.get("posting_date",""),
-				"account_currency_to":i.get("paid_to_account_currency",""),
-				"account_paid_to":i.get("paid_to",""),
-    			"party":i.get("party",""),
-				"party_name":i.get("party_name",""),
-				"paid_amount":i.get("paid_amount",0) - i.get("custom_deduction_amount",0) ,
-				"remark":i.get("remark"),
-				"account_no":acc_no,
-				"is_wib":is_wib,
-				"beneficiary_string":beneficiary_str
+				self.append("payment_entry_details", {
+					"payment_entry": i.get("name", ""),
+					"posting_date":i.get("posting_date",""),
+					"account_currency_to":i.get("paid_to_account_currency",""),
+					"account_paid_to":i.get("paid_to",""),
+					"party":i.get("party",""),
+					"party_name":i.get("party_name",""),
+					"paid_amount":i.get("paid_amount",0) - i.get("custom_deduction_amount",0) ,
+					"remark":i.get("remark"),
+					"account_no":acc_no,
+					"is_wib":is_wib,
+					"beneficiary_string":beneficiary_str
+				})
 
-			})
-
-	# Paths for keys and API URLs
 	current_path = os.path.dirname(os.path.abspath(__file__))
 	PUBLIC_KEY_FILE = os.path.join(current_path, "prod_pub_key.crt")
 	PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
@@ -96,7 +99,7 @@ class SupplierBankPayment(Document):
 		padded_data = pad(data.encode('utf-8'), AES.block_size)
 		encrypted_data = cipher.encrypt(padded_data)
 		return base64.b64encode(encrypted_data).decode('utf-8')
-
+		
 	def encrypt_key(self, session_key):
 		with open(self.PUBLIC_KEY_FILE, 'rb') as f:
 			public_key = RSA.import_key(f.read())
