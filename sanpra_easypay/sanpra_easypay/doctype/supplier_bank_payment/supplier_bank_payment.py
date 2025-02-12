@@ -146,7 +146,7 @@ class SupplierBankPayment(Document):
 			"service": "LOP",
 			"encryptedKey": encrypted_key,
 			"oaepHashingAlgorithm": "NONE",
-			"iv": base64.b64encode((self.IV).encode('utf-8')).decode('utf-8'),
+			"iv": base64.b64encode(self.IV).decode('utf-8'),
 			"encryptedData": encrypted_data,
 			"clientInfo": "",
 			"optionalParam": ""
@@ -158,7 +158,8 @@ class SupplierBankPayment(Document):
 			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
 			decrypted_data = json.loads(decrypted_data)
 			otp_log["decrypted_response"] = str(decrypted_data)
-
+		else:
+			frappe.throw("no response")
 		# except Exception as e:
 		# 	otp_log["error"] = str(e)
 		# 	frappe.msgprint(
