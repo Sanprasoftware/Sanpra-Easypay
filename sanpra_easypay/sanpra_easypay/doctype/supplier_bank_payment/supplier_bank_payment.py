@@ -86,8 +86,10 @@ class SupplierBankPayment(Document):
 	PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
 	REVERSE_PAYMENT_URL = "https://apibankingone.icicibank.com/api/v1/ReverseMis"
 	API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
-	SESSION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
-	IV = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
+	SESSION_KEY = os.urandom(16)
+	IV = os.urandom(16)
+	# SESSION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
+	# IV = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
 	AGGR_ID = "BULK0079"
 	AGGR_NAME = "BASTAR"
 	CORP_ID = "596778175"
