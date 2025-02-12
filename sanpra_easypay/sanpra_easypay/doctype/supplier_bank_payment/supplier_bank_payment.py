@@ -154,6 +154,7 @@ class SupplierBankPayment(Document):
 
 		response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
 		otp_log["encrypted_response"] = str(response.json())
+		frappe.throw(str(response.json()))
 		if response:
 			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
 			decrypted_data = json.loads(decrypted_data)
