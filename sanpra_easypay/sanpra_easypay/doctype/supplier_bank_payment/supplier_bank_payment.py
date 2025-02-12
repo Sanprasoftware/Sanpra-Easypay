@@ -128,50 +128,50 @@ class SupplierBankPayment(Document):
 		otp_log = {}
 		UNIQUEID = str(self.name)
 		decrypted_data = None
-		try:
-			payload = json.dumps({
-				"AGGRID": self.AGGR_ID,
-				"AGGRNAME": self.AGGR_NAME,
-				"CORPID": self.CORP_ID,
-				"USERID": self.USER_ID,
-				"URN": self.URN,
-				"UNIQUEID": UNIQUEID
-			})
+		# try:
+		payload = json.dumps({
+			"AGGRID": self.AGGR_ID,
+			"AGGRNAME": self.AGGR_NAME,
+			"CORPID": self.CORP_ID,
+			"USERID": self.USER_ID,
+			"URN": self.URN,
+			"UNIQUEID": UNIQUEID
+		})
 
-			encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
-			encrypted_key = self.encrypt_key(self.SESSION_KEY)
+		encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
+		encrypted_key = self.encrypt_key(self.SESSION_KEY)
 
-			final_json = {
-				"requestId": "",
-				"service": "LOP",
-				"encryptedKey": encrypted_key,
-				"oaepHashingAlgorithm": "NONE",
-				"iv": base64.b64encode((self.IV).encode('utf-8')).decode('utf-8'),
-				"encryptedData": encrypted_data,
-				"clientInfo": "",
-				"optionalParam": ""
-			}
+		final_json = {
+			"requestId": "",
+			"service": "LOP",
+			"encryptedKey": encrypted_key,
+			"oaepHashingAlgorithm": "NONE",
+			"iv": base64.b64encode((self.IV).encode('utf-8')).decode('utf-8'),
+			"encryptedData": encrypted_data,
+			"clientInfo": "",
+			"optionalParam": ""
+		}
 
-			response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
-			otp_log["encrypted_response"] = str(response.json())
-			if response:
-				decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
-				decrypted_data = json.loads(decrypted_data)
-				otp_log["decrypted_response"] = str(decrypted_data)
+		response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
+		otp_log["encrypted_response"] = str(response.json())
+		if response:
+			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
+			decrypted_data = json.loads(decrypted_data)
+			otp_log["decrypted_response"] = str(decrypted_data)
 
-		except Exception as e:
-			otp_log["error"] = str(e)
-			frappe.msgprint(
-				_("Error occurred: {0}").format(str(e)),
-				title="Error",
-				indicator="red"
-			)
+		# except Exception as e:
+		# 	otp_log["error"] = str(e)
+		# 	frappe.msgprint(
+		# 		_("Error occurred: {0}").format(str(e)),
+		# 		title="Error",
+		# 		indicator="red"
+		# 	)
 
 
-		finally:
-			otp_log["log_time"] = frappe.utils.now()
-			self.append("otp_api_log_details", otp_log)
-			self.save()
+		# finally:
+		# 	otp_log["log_time"] = frappe.utils.now()
+		# 	self.append("otp_api_log_details", otp_log)
+		# 	self.save()
 		if not decrypted_data:
 			decrypted_data = {}
 		return decrypted_data.get('MESSAGE') or decrypted_data.get('Message') or None
