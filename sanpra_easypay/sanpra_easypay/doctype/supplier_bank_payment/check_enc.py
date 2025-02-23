@@ -69,6 +69,8 @@ class EncryptionHandler:
         print("Encrypted Key:", encrypted_key)
 
         # Decrypting the data
+        # encrypted_key = 'i1zpz3b19WuaHU6auPvlfv3GgMVn9ERWQd8yHpbCHGpIiBSKFUiiXjoLonhtqC5HYMdQ5s4v+OvhE2cPd6DF4ACWxoMTLDSJ/Z8JV+d+DC0LiReN1gfXfLqtKN6Y92k5Vb43qxIDqQbwuVroD2Rzy2PHeZIyqJgqncS9kW4Y+yb56IcD74X50Wf7puOiHzWmxRWiV9fewcIQVDOhulTBaSZHuvRQBwivt7rnPsh4aUbR9OOK9ZbAMY10Ed9FQDxlUHaRTLwSrYErNEo5ZcezBpFt+/048sZT64naetldud93F5LsnDmZ77TiAW9Pk0oX8YnkuZfjo4oiRmI/T8TsAG4U/C3syfFrKue0Meb5auBtlZTMw7d6z6qyTCXIe99vAptmL/e3Q8jgUO6yo1srmpWePPURDJiniI7TmREomh8qPrY1NOvi8aMlPrOQ/uUJw+tJ0maRcQ0Xn1K4etiCFJRUG2VNpb5kQV3oMsyrGisyYqCTfCgyFB+q13I7M8dvA5Dn/l1XXSCnEinY3wVX+A8DbgfCD/3DWSV+gHXadAGGX6PvCy1WlcddSFn/JSSeaybDdXydrNeHmdd+jJuS1efrWgMZmfheGoDW1bj7XyuinZmDuiognepqXqsM7By1tENC1XdOcgl2qNtnwXbx+JW73m3GQnd4Kr1ypKkoUGw='
+        # encrypted_data = 'd9ZkBuxpr0vz7mVKAiJspUvgo+/gtiCGl4yfOh+mb3/fcDgVFK58g01ULBDEf5gwHhP6Jq+Tc7X50hA6lFv0FQtYOfHYiqsdBZ3VHK9bEWw='
         decrypted_data = self.decrypt_data(encrypted_data, encrypted_key)
         if decrypted_data:
             print("Decrypted Data:", decrypted_data)

@@ -155,7 +155,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-01-23 13:02:19.854037",
+ "modified": "2025-02-20 10:39:07.546177",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",
@@ -163,6 +163,8 @@
  "owner": "Administrator",
  "permissions": [
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,

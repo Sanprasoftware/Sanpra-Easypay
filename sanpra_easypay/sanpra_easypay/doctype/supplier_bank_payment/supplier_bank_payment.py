@@ -11,7 +11,6 @@ import frappe
 from datetime import datetime
 from frappe import _
 import os
-import secrets, string
 from frappe.model.document import Document
 
 
@@ -35,7 +34,7 @@ class SupplierBankPayment(Document):
         
 	@frappe.whitelist()
 	def get_pe_details(self):
-		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":1}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_deduction_amount"])
+		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_deduction_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
@@ -88,8 +87,7 @@ class SupplierBankPayment(Document):
 	API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
 	SESSION_KEY = os.urandom(16)
 	IV = os.urandom(16)
-	# SESSION_KEY = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
-	# IV = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
+
 	AGGR_ID = "BULK0079"
 	AGGR_NAME = "BASTAR"
 	CORP_ID = "596778175"
@@ -109,21 +107,11 @@ class SupplierBankPayment(Document):
 		encrypted_key = cipher_rsa.encrypt(session_key)
 		return base64.b64encode(encrypted_key).decode('utf-8')
 
-	def fix_base64_padding(data):
-		# Add necessary padding to make the base64 string valid
-		padding = len(data) % 4
-		if padding != 0:
-			data += '=' * (4 - padding)
-		return data
-
 	def decrypt_data(self, encrypted_data, encrypted_key):
 		with open(self.PRIVATE_KEY_FILE, "rb") as key_file:
 			private_key = RSA.import_key(key_file.read())
 
-		# Ensure the base64 key is properly padded
-		encrypted_key_bytes = fix_base64_padding(encrypted_key)
-		encrypted_key_bytes = base64.b64decode(encrypted_key_bytes)
-		
+		encrypted_key_bytes = base64.b64decode(encrypted_key)
 		cipher = PKCS1_v1_5.new(private_key)
 		session_key = cipher.decrypt(encrypted_key_bytes, None)
 
@@ -139,52 +127,50 @@ class SupplierBankPayment(Document):
 		otp_log = {}
 		UNIQUEID = str(self.name)
 		decrypted_data = None
-		# try:
-		payload = json.dumps({
-			"AGGRID": self.AGGR_ID,
-			"AGGRNAME": self.AGGR_NAME,
-			"CORPID": self.CORP_ID,
-			"USERID": self.USER_ID,
-			"URN": self.URN,
-			"UNIQUEID": UNIQUEID
-		})
+		try:
+			payload = json.dumps({
+				"AGGRID": self.AGGR_ID,
+				"AGGRNAME": self.AGGR_NAME,
+				"CORPID": self.CORP_ID,
+				"USERID": self.USER_ID,
+				"URN": self.URN,
+				"UNIQUEID": UNIQUEID
+			})
 
-		encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
-		encrypted_key = self.encrypt_key(self.SESSION_KEY)
+			encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
+			encrypted_key = self.encrypt_key(self.SESSION_KEY)
 
-		final_json = {
-			"requestId": "",
-			"service": "LOP",
-			"encryptedKey": encrypted_key,
-			"oaepHashingAlgorithm": "NONE",
-			"iv": base64.b64encode(self.IV).decode('utf-8'),
-			"encryptedData": encrypted_data,
-			"clientInfo": "",
-			"optionalParam": ""
-		}
+			final_json = {
+				"requestId": "",
+				"service": "LOP",
+				"encryptedKey": encrypted_key,
+				"oaepHashingAlgorithm": "NONE",
+				"iv": base64.b64encode(self.IV).decode('utf-8'),
+				"encryptedData": encrypted_data,
+				"clientInfo": "",
+				"optionalParam": ""
+			}
 
-		response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
-		otp_log["encrypted_response"] = str(response.json())
-		# frappe.throw(str(response.json()))
-		if response:
-			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
-			decrypted_data = json.loads(decrypted_data)
-			otp_log["decrypted_response"] = str(decrypted_data)
-		else:
-			frappe.throw("no response")
-		# except Exception as e:
-		# 	otp_log["error"] = str(e)
-		# 	frappe.msgprint(
-		# 		_("Error occurred: {0}").format(str(e)),
-		# 		title="Error",
-		# 		indicator="red"
-		# 	)
+			response = requests.post(self.OTP_API_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(final_json))
+			otp_log["encrypted_response"] = str(response.json())
+			if response:
+				decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
+				decrypted_data = json.loads(decrypted_data)
+				otp_log["decrypted_response"] = str(decrypted_data)
+	
+		except Exception as e:
+			otp_log["error"] = str(e)
+			frappe.msgprint(
+				_("Error occurred: {0}").format(str(e)),
+				title="Error",
+				indicator="red"
+			)
 
 
-		# finally:
-		# 	otp_log["log_time"] = frappe.utils.now()
-		# 	self.append("otp_api_log_details", otp_log)
-		# 	self.save()
+		finally:
+			otp_log["log_time"] = frappe.utils.now()
+			self.append("otp_api_log_details", otp_log)
+			self.save()
 		if not decrypted_data:
 			decrypted_data = {}
 		return decrypted_data.get('MESSAGE') or decrypted_data.get('Message') or None
@@ -210,7 +196,7 @@ class SupplierBankPayment(Document):
 				"FILE_CONTENT": encoded_str
 			})
 
-			encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.SESSION_KEY)
+			encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
 			encrypted_key = self.encrypt_key(self.SESSION_KEY)
 
 			payload = {
@@ -218,7 +204,7 @@ class SupplierBankPayment(Document):
 				"service": "LOP",
 				"encryptedKey": encrypted_key,
 				"oaepHashingAlgorithm": "NONE",
-				"iv": base64.b64encode((self.IV).encode('utf-8')).decode('utf-8'),
+				"iv": base64.b64encode(self.IV).decode('utf-8'),
 				"encryptedData": encrypted_data,
 				"clientInfo": "",
 				"optionalParam": ""
@@ -233,6 +219,10 @@ class SupplierBankPayment(Document):
 				if "FILE_SEQUENCE_NUM" in decrypted_data:
 					self.file_sequence_number = decrypted_data["FILE_SEQUENCE_NUM"]
 					self.save()
+					for pe in self.get("payment_entry_details",{"make_payment":1}):
+						in_process_amt = frappe.get_value("Payment Entry",pe.payment_entry,"custom_in_process_amount")
+						frappe.db.set_value("Payment Entry",pe.payment_entry,"custom_in_process_amount",pe.amount + in_process_amt)
+						
 					self.check_payment_status(decrypted_data["FILE_SEQUENCE_NUM"])
 				key = 'MESSAGE' if 'MESSAGE' in decrypted_data else 'Message'
 
@@ -258,33 +248,32 @@ class SupplierBankPayment(Document):
 			payload = json.dumps({
 				"AGGRID": self.AGGR_ID,
 				"CORPID": self.CORP_ID,
-				"USERID": self.USER_ID,
+				"USERID": "BDF19771255",
 				"URN": self.URN,
 				"ISENCRYPTED": "N",
 				"UNIQUEID": UNIQUEID,
 				"FILESEQNUM": FILE_SEQ_NUM
 			})
-
 			encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
 			encrypted_key = self.encrypt_key(self.SESSION_KEY)
-
 			payload = {
 				"requestId": "",
 				"service": "LOP",
 				"encryptedKey": encrypted_key,
 				"oaepHashingAlgorithm": "NONE",
-				"iv": base64.b64encode((self.IV).encode('utf-8')).decode('utf-8'),
+				"iv": base64.b64encode((self.IV)).decode('utf-8'),
 				"encryptedData": encrypted_data,
 				"clientInfo": "",
 				"optionalParam": ""
 			}
+			frappe.msgprint(f"encrypted Payload: {payload}")
 			response = requests.post(self.REVERSE_PAYMENT_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(payload))
 			status_log["encrypted_response"] = str(response.json())
-
+			
 			if response:
 				decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
 				status_log["decrypted_response"] = str(decrypted_data)
-
+			
 		except Exception as e:
 			status_log["error"] = str(e)
 			frappe.msgprint(
@@ -297,5 +286,56 @@ class SupplierBankPayment(Document):
 			status_log["log_time"] = frappe.utils.now()
 			self.append("payment_status_api_log_details", status_log)
 			self.save()
+   
+   
+# def update_payment_status():
+#     success = True
+#     payment_docs = frappe.get_all("Supplier Bulk Payment",{"docstatus":1},pluck="name")
+    
+# @frappe.whitelist()
+# def check_payment_status(unique_id, file_seq_no):
+# 	UNIQUEID = unique_id
+# 	FILE_SEQ_NUM = str(file_seq_no)
+# 	try:
+# 		payload = json.dumps({
+# 			"AGGRID": self.AGGR_ID,
+# 			"CORPID": self.CORP_ID,
+# 			"USERID": "BDF19771255",
+# 			"URN": self.URN,
+# 			"ISENCRYPTED": "N",
+# 			"UNIQUEID": UNIQUEID,
+# 			"FILESEQNUM": FILE_SEQ_NUM
+# 		})
+# 		encrypted_data = self.encrypt_data(payload, self.SESSION_KEY, self.IV)
+# 		encrypted_key = self.encrypt_key(self.SESSION_KEY)
+# 		payload = {
+# 			"requestId": "",
+# 			"service": "LOP",
+# 			"encryptedKey": encrypted_key,
+# 			"oaepHashingAlgorithm": "NONE",
+# 			"iv": base64.b64encode((self.IV)).decode('utf-8'),
+# 			"encryptedData": encrypted_data,
+# 			"clientInfo": "",
+# 			"optionalParam": ""
+# 		}
+# 		frappe.msgprint(f"encrypted Payload: {payload}")
+# 		response = requests.post(self.REVERSE_PAYMENT_URL, headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': self.API_KEY}, data=json.dumps(payload))
+# 		status_log["encrypted_response"] = str(response.json())
+		
+# 		if response:
+# 			decrypted_data = self.decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
+# 			status_log["decrypted_response"] = str(decrypted_data)
+		
+# 	except Exception as e:
+# 		status_log["error"] = str(e)
+# 		frappe.msgprint(
+# 			_("Error occurred: {0}").format(str(e)),
+# 			title="Error",
+# 			indicator="red"
+# 		)
 
+# 	finally:
+# 		status_log["log_time"] = frappe.utils.now()
+# 		self.append("payment_status_api_log_details", status_log)
+# 		self.save()
 
