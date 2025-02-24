@@ -155,3 +155,13 @@ document.head.appendChild(style1);
         }
     },
 });
+frappe.ui.form.on("Payment Entry Details",{
+    paid_amount:function(frm,cdt,cdn){
+        let d = locals[cdt][cdn]
+        if(d.paid_amount > d.payable_amount){
+            d.paid_amount = d.payable_amount
+            frappe.msgprint("Paid Amount cannot be greater than payable amount")
+            frm.refresh_fields()
+        }
+    }
+})
