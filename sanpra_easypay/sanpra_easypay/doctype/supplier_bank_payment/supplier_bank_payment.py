@@ -32,7 +32,6 @@ USER_ID = "MOHAMMAD"
 URN = "SR263840153"
 
 
-# Encryption and Decryption Helper Functions (moved outside the class)
 def encrypt_data(data, session_key, iv):
     cipher = AES.new(session_key, AES.MODE_CBC, iv)
     padded_data = pad(data.encode('utf-8'), AES.block_size)
@@ -91,7 +90,7 @@ class SupplierBankPayment(Document):
 		
 	@frappe.whitelist()
 	def get_pe_details(self):
-		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
+		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":1}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
@@ -136,50 +135,6 @@ class SupplierBankPayment(Document):
 					"beneficiary_string":beneficiary_str
 				})
 
-	# current_path = os.path.dirname(os.path.abspath(__file__))
-	# PUBLIC_KEY_FILE = os.path.join(current_path, "prod_pub_key.crt")
-	# PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
-	# OTP_API_URL = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Create"
-	# PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
-	# REVERSE_PAYMENT_URL = "https://apibankingone.icicibank.com/api/v1/ReverseMis"
-	# API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
-	# SESSION_KEY = os.urandom(16)
-	# IV = os.urandom(16)
-
-	# AGGR_ID = "BULK0079"
-	# AGGR_NAME = "BASTAR"
-	# CORP_ID = "596778175"
-	# USER_ID = "MOHAMMAD"
-	# URN = "SR263840153"
-	
-
-	# def encrypt_data(self, data, session_key, iv):
-	# 	cipher = AES.new(session_key, AES.MODE_CBC, iv)
-	# 	padded_data = pad(data.encode('utf-8'), AES.block_size)
-	# 	encrypted_data = cipher.encrypt(padded_data)
-	# 	return base64.b64encode(encrypted_data).decode('utf-8')
-		
-	# def encrypt_key(self, session_key):
-	# 	with open(self.PUBLIC_KEY_FILE, 'rb') as f:
-	# 		public_key = RSA.import_key(f.read())
-	# 	cipher_rsa = PKCS1_v1_5.new(public_key)
-	# 	encrypted_key = cipher_rsa.encrypt(session_key)
-	# 	return base64.b64encode(encrypted_key).decode('utf-8')
-
-	# def decrypt_data(self, encrypted_data, encrypted_key):
-	# 	with open(self.PRIVATE_KEY_FILE, "rb") as key_file:
-	# 		private_key = RSA.import_key(key_file.read())
-
-	# 	encrypted_key_bytes = base64.b64decode(encrypted_key)
-	# 	cipher = PKCS1_v1_5.new(private_key)
-	# 	session_key = cipher.decrypt(encrypted_key_bytes, None)
-
-	# 	iv = base64.b64decode(encrypted_data)[:16]
-	# 	encrypted_data_bytes = base64.b64decode(encrypted_data)[16:]
-	# 	cipher = AES.new(session_key, AES.MODE_CBC, iv)
-	# 	plaintext = unpad(cipher.decrypt(encrypted_data_bytes), AES.block_size)
-		
-	# 	return plaintext.decode("utf-8")
 
 	@frappe.whitelist()
 	def get_otp(self):
@@ -280,11 +235,11 @@ class SupplierBankPayment(Document):
 					self.save()
 					for pe in self.get("payment_entry_details",{"make_payment":1}):
 						in_process_amt = frappe.get_value("Payment Entry",pe.payment_entry,"custom_in_process_amount")
-						frappe.db.set_value("Payment Entry",pe.payment_entry,"custom_in_process_amount",pe.amount + in_process_amt)
+						frappe.db.set_value("Payment Entry",pe.payment_entry,"custom_in_process_amount",pe.paid_amount + in_process_amt)
 						
 					self.check_payment_status(decrypted_data["FILE_SEQUENCE_NUM"])
 				key = 'MESSAGE' if 'MESSAGE' in decrypted_data else 'Message'
-
+				frappe.msgprint(f"{decrypted_data[key]}")
 		except Exception as e:
 			payment_log["error"] = str(e)
 			frappe.msgprint(
@@ -344,92 +299,7 @@ class SupplierBankPayment(Document):
 			status_log["log_time"] = frappe.utils.now()
 			self.append("payment_status_api_log_details", status_log)
 			self.save()
-   
-   
 
-
-# @frappe.whitelist()
-# def check_payment_status():
-# 	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None]},["name","file_sequence_number"])
-# 	for pd in payment_docs:
-# 		unique_id = pd.get("name")
-# 		file_seq_no = pd.get("file_sequence_number")
-# 		payload = json.dumps({
-# 			"AGGRID": AGGR_ID,
-# 			"CORPID": CORP_ID,
-# 			"USERID": "BDF19771255",
-# 			"URN": URN,
-# 			"ISENCRYPTED": "N",
-# 			"UNIQUEID": unique_id,
-# 			"FILESEQNUM": str(file_seq_no)
-# 		})
-
-# 		encrypted_data = encrypt_data(payload, SESSION_KEY, IV)
-# 		encrypted_key = encrypt_key(SESSION_KEY)
-
-# 		payload = {
-# 			"requestId": "",
-# 			"service": "LOP",
-# 			"encryptedKey": encrypted_key,
-# 			"oaepHashingAlgorithm": "NONE",
-# 			"iv": base64.b64encode(IV).decode('utf-8'),
-# 			"encryptedData": encrypted_data,
-# 			"clientInfo": "",
-# 			"optionalParam": ""
-# 		}
-
-# 		response = requests.post(
-# 			"https://apibankingone.icicibank.com/api/v1/ReverseMis", 
-# 			headers={'Content-Type': 'application/json', 'accept': '*/*', 'APIKEY': "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"}, 
-# 			data=json.dumps(payload)
-# 		)
-				
-# 		if response:
-# 			decrypted_data = decrypt_data(response.json()["encryptedData"], response.json()["encryptedKey"])
-# 			decrypted_data = json.loads(decrypted_data)
-# 			records = decrypted_data['XML']['FILEUPLOAD_BINARY_OUTPUT']['Records']['Record']
-# 			is_debit_record = True
-# 			is_debit_success = False
-# 			sbp_doc = frappe.get_doc("Supplier Bank Payment",pd)
-# 			idx = -2
-# 			for record in records[1:]:  
-# 				idx += 1
-# 				transaction_response = None
-# 				fields = record.split('|')
-# 				transaction_type = fields[0]
-# 				network_id = fields[1]
-# 				credit_account_number = fields[2]
-# 				debit_account_number = fields[3]
-# 				ifsc_code = fields[4]
-# 				total_amount = fields[5]
-# 				host_reference_number = fields[6]
-# 				host_response_code = fields[7]
-# 				host_response_message = fields[8]
-# 				transaction_remarks = fields[9]
-# 				transaction_status = fields[10]
-# 				if is_debit_record:
-# 					is_debit_record = False
-# 					if transaction_remarks == "Payment Success":
-# 						is_debit_success = True
-# 					else:
-# 						break
-# 				else:
-# 					transaction_response = (
-# 							f"Transaction Type: {transaction_type}\n"
-# 							f"Network ID: {network_id}\n"
-# 							f"Credit Account Number: {credit_account_number}\n"
-# 							f"Debit Account Number: {debit_account_number}\n"
-# 							f"IFSC Code: {ifsc_code}\n"
-# 							f"Total Amount: {total_amount}\n"
-# 							f"Host Reference Number: {host_reference_number}\n"
-# 							f"Host Response Code: {host_response_code}\n"
-# 							f"Host Response Message: {host_response_message}\n"
-# 							f"Transaction Remarks: {transaction_remarks}\n"
-# 							f"Transaction Status: {transaction_status}\n"
-# 						)
-# 					sbp_doc.get("payment_entry_details")[idx].transaction_response = transaction_response
-# 					sbp_doc.get("payment_entry_details")[idx].transaction_remark = transaction_remarks
-# 					sbp_doc.save()
      
 @frappe.whitelist()
 def check_payment_status():
@@ -530,19 +400,6 @@ def check_payment_status():
 							frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', in_progress - amount)
 							sbp_doc.get("payment_entry_details")[idx].updated_on_payment_entry = 1
 					sbp_doc.save()
-# @frappe.whitelist()
-# def update_payment_entry():
-# 	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None],},["name","file_sequence_number"])
 
-# Now the variable 'transaction_details' contains the entire concatenated string.
-
-
-    # except Exception as e:
-    #     status_log["error"] = str(e)
-    #     frappe.msgprint(
-    #         _("Error occurred: {0}").format(str(e)),
-    #         title="Error",
-    #         indicator="red"
-    #     )
 
     
