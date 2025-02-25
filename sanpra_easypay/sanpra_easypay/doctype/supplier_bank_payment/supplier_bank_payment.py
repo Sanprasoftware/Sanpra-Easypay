@@ -63,6 +63,10 @@ def decrypt_data(encrypted_data, encrypted_key):
 
     return plaintext.decode("utf-8")
 class SupplierBankPayment(Document):
+	def before_submit(self):
+		zero_rows = self.get("payment_entry_details",{"make_payment":0})
+		for z in zero_rows:
+			self.payment_entry_details.remove(z)
 	@frappe.whitelist()
 	def on_update_after_submit(self):
 		self.validate()
@@ -71,7 +75,6 @@ class SupplierBankPayment(Document):
 			for pe in self.get("payment_entry_details"):
 				if pe.paid_amount > pe.payable_amount:
 					frappe.throw("Paid Amount cannot be greater than payable amount")
-    
 	
 	@frappe.whitelist()
 	def validate(self):

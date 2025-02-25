@@ -149,7 +149,11 @@ doctype_js = {"Payment Entry" : "public/js/custom_payment_entry.js"}
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
+    "cron": {
+        "0 */3 * * *": "sanpra_easypay.sanpra_easypay.doctype.supplier_bank_payment.supplier_bank_payment.check_payment_status"
+    }
+
 # 	"all": [
 # 		"sanpra_easypay.tasks.all"
 # 	],
@@ -165,7 +169,7 @@ doctype_js = {"Payment Entry" : "public/js/custom_payment_entry.js"}
 # 	"monthly": [
 # 		"sanpra_easypay.tasks.monthly"
 # 	],
-# }
+}
 
 # Testing
 # -------
