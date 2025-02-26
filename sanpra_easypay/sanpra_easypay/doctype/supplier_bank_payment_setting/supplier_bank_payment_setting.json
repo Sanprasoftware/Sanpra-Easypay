@@ -1,0 +1,131 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-26 13:24:50.155190",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "payer_details_section",
+  "aggr_id",
+  "corp_id",
+  "urn",
+  "column_break_sopx",
+  "aggr_name",
+  "user_id",
+  "api_details_section",
+  "otp_api_endpoint_url",
+  "payment_api_endpoint_url",
+  "reverse_mis_api_endpoint_url",
+  "api_key",
+  "rsa_key_pair_details_section",
+  "public_ssl_certificate_crt",
+  "column_break_ibfp",
+  "private_key_pem"
+ ],
+ "fields": [
+  {
+   "fieldname": "payer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Payer Details"
+  },
+  {
+   "fieldname": "aggr_id",
+   "fieldtype": "Data",
+   "label": "AGGR ID"
+  },
+  {
+   "fieldname": "corp_id",
+   "fieldtype": "Data",
+   "label": "CORP ID"
+  },
+  {
+   "fieldname": "urn",
+   "fieldtype": "Data",
+   "label": "URN"
+  },
+  {
+   "fieldname": "column_break_sopx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "aggr_name",
+   "fieldtype": "Data",
+   "label": "AGGR NAME"
+  },
+  {
+   "fieldname": "user_id",
+   "fieldtype": "Data",
+   "label": "USER ID"
+  },
+  {
+   "fieldname": "api_details_section",
+   "fieldtype": "Section Break",
+   "label": "API Details"
+  },
+  {
+   "fieldname": "otp_api_endpoint_url",
+   "fieldtype": "Small Text",
+   "label": "OTP API Endpoint URL",
+   "max_height": "30px"
+  },
+  {
+   "fieldname": "payment_api_endpoint_url",
+   "fieldtype": "Small Text",
+   "label": "Payment API Endpoint URL",
+   "max_height": "30px"
+  },
+  {
+   "fieldname": "reverse_mis_api_endpoint_url",
+   "fieldtype": "Small Text",
+   "label": "Reverse Mis API Endpoint URL",
+   "max_height": "30px"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Data",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "rsa_key_pair_details_section",
+   "fieldtype": "Section Break",
+   "label": "RSA Key Pair Details"
+  },
+  {
+   "fieldname": "public_ssl_certificate_crt",
+   "fieldtype": "Attach",
+   "label": "Public SSL Certificate (.crt)"
+  },
+  {
+   "fieldname": "column_break_ibfp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "private_key_pem",
+   "fieldtype": "Attach",
+   "label": "Private Key (.pem)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-02-26 13:38:54.371171",
+ "modified_by": "Administrator",
+ "module": "Sanpra Easypay",
+ "name": "Supplier Bank Payment Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

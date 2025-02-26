@@ -238,8 +238,7 @@ class SupplierBankPayment(Document):
 						frappe.db.set_value("Payment Entry",pe.payment_entry,"custom_in_process_amount",pe.paid_amount + in_process_amt)
 						
 					self.check_payment_status(decrypted_data["FILE_SEQUENCE_NUM"])
-				key = 'MESSAGE' if 'MESSAGE' in decrypted_data else 'Message'
-				frappe.msgprint(f"{decrypted_data[key]}")
+				frappe.msgprint(f"{decrypted_data.get('MESSAGE_DESC',decrypted_data)}")
 		except Exception as e:
 			payment_log["error"] = str(e)
 			frappe.msgprint(
