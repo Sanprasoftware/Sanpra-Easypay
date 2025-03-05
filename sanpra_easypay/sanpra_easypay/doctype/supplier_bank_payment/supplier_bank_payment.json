@@ -13,9 +13,11 @@
   "column_break_owmb",
   "to_date",
   "account_currency_from",
+  "select_all",
   "column_break_xhhn",
   "file_sequence_number",
   "account_no",
+  "party",
   "section_break_knjb",
   "payment_entry_details",
   "header_string",
@@ -150,12 +152,23 @@
    "fieldtype": "Small Text",
    "label": "Header String",
    "read_only": 1
+  },
+  {
+   "fieldname": "select_all",
+   "fieldtype": "Button",
+   "label": "Select All"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Link",
+   "label": "Party",
+   "options": "Supplier"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-20 10:39:07.546177",
+ "modified": "2025-03-04 22:29:02.130114",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",

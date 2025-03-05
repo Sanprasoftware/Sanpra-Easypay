@@ -90,7 +90,12 @@ class SupplierBankPayment(Document):
 		
 	@frappe.whitelist()
 	def get_pe_details(self):
-		pe_docs = frappe.get_all("Payment Entry", {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":1}, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
+		if self.party:
+			filters = {"party":self.party,"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":["in",[0,1]]}
+		else:
+			filters = {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":["in",[0,1]]}
+		
+		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
@@ -391,6 +396,9 @@ def check_payment_status():
 							frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', in_progress - amount)
 							frappe.db.set_value("Payment Entry", payment_entry, 'custom_transferred_amount', transferred + amount)
 							sbp_doc.get("payment_entry_details")[idx].updated_on_payment_entry = 1
+							pe_doc = frappe.get_doc("Payment Entry",payment_entry)
+							if pe_doc.docstatus == 0:
+								pe_doc.submit()
 					else:
 						if not update:
 							amount = sbp_doc.get("payment_entry_details")[idx].paid_amount

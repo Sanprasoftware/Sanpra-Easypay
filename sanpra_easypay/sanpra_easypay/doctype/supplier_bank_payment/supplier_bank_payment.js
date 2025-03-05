@@ -2,6 +2,15 @@
 // For license information, please see license.txt
 let show_dialog = false
 frappe.ui.form.on("Supplier Bank Payment", {
+    select_all(frm) {
+        if(frm.doc.payment_entry_details){
+            const check = !frm.doc.payment_entry_details[0].make_payment
+            frm.doc.payment_entry_details.forEach(row=>{
+                row.make_payment = check
+            })
+            // frm.refresh_fields()
+     }
+    },
 	async get_payment_entries(frm) {
         frm.clear_table("payment_entry_details")
         if(frm.doc.from_date && frm.doc.to_date){
