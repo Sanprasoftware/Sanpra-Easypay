@@ -18,6 +18,7 @@
   "file_sequence_number",
   "account_no",
   "party",
+  "updated_party_payment_status",
   "section_break_knjb",
   "payment_entry_details",
   "header_string",
@@ -163,12 +164,20 @@
    "fieldtype": "Link",
    "label": "Party",
    "options": "Supplier"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "updated_party_payment_status",
+   "fieldtype": "Check",
+   "label": "Updated Party Payment Status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-04 22:29:02.130114",
+ "modified": "2025-03-05 23:48:33.858142",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",

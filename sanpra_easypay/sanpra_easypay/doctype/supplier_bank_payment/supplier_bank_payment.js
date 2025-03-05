@@ -8,7 +8,7 @@ frappe.ui.form.on("Supplier Bank Payment", {
             frm.doc.payment_entry_details.forEach(row=>{
                 row.make_payment = check
             })
-            // frm.refresh_fields()
+            frm.refresh_fields()    
      }
     },
 	async get_payment_entries(frm) {

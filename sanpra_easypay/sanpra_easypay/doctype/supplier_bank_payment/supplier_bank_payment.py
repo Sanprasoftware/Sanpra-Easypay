@@ -99,7 +99,7 @@ class SupplierBankPayment(Document):
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
-		
+		BANK_PAYMENT_LIMIT = 0
 		for i in pe_docs:
 			is_skip = False
 			def_bank_acc,acc_no,ifsc_code = frappe.get_value("Supplier",i.get("party"),["default_party_bank_account","party_account_number,party_branch_code"]) or (None,None,None)
@@ -139,6 +139,10 @@ class SupplierBankPayment(Document):
 					"is_wib":is_wib,
 					"beneficiary_string":beneficiary_str
 				})
+
+				BANK_PAYMENT_LIMIT = BANK_PAYMENT_LIMIT + 1
+				if BANK_PAYMENT_LIMIT == 150:
+					break
 
 
 	@frappe.whitelist()
@@ -307,7 +311,7 @@ class SupplierBankPayment(Document):
      
 @frappe.whitelist()
 def check_payment_status():
-	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None]},["name","file_sequence_number"])
+	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None],"updated_party_payment_status":0},["name","file_sequence_number"])
 	for pd in payment_docs:
 		unique_id = pd.get("name")
 		file_seq_no = pd.get("file_sequence_number")
@@ -387,6 +391,7 @@ def check_payment_status():
 					sbp_doc.get("payment_entry_details")[idx].transaction_response = transaction_response
 					sbp_doc.get("payment_entry_details")[idx].transaction_remark = transaction_remarks
 					update = sbp_doc.get("payment_entry_details")[idx].updated_on_payment_entry 
+					sbp_doc.updated_party_payment_status = 1
 					if transaction_remarks == "Payment Success":
 						if not update:
 							amount = sbp_doc.get("payment_entry_details")[idx].paid_amount
