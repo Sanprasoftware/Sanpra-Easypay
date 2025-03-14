@@ -45,9 +45,12 @@ class SupplierAdvancePayments(Document):
 			pe_doc.paid_from_account_currency = "INR"
 			pe_doc.paid_to_account_currency = "INR"
 			pe_doc.append("references",{
-				"reference_doctype":"Supplier",
-				"reference_name":i.purchase_invoice
+				"reference_doctype":"Purchase Invoice",
+				"reference_name":i.purchase_invoice,
+				"due_date":frappe.get_value("Purchase Invoice",i.purchase_invoice,"due_date"),
+				"bill_no":frappe.get_value("Purchase Invoice",i.purchase_invoice,"bill_no")
 			})
+			pe_doc.custom_supplier_advance_payments = self.name
 			pe_doc.save()
 			i.payment_entry = pe_doc.name
 			if frappe.get_value("Purchase Invoice",i.purchase_invoice,"outstanding_amount") == i.outstanding_amount:

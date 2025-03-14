@@ -12,7 +12,7 @@ from datetime import datetime
 from frappe import _
 import os
 from frappe.model.document import Document
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 
 
 current_path = os.path.dirname(os.path.abspath(__file__))

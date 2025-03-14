@@ -16,6 +16,7 @@ frappe.ui.form.on("Supplier Advance Payments", {
             frm.doc.purchase_invoice_details.forEach(row=>{
                 row.check = check
             })
+            frm.dirty()
             frm.refresh_fields()    
      }
     }
