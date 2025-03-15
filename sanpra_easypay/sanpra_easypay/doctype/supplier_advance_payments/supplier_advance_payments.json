@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:SAP-{#########}",
  "creation": "2025-03-06 22:00:54.379142",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -15,6 +16,7 @@
   "select_all",
   "column_break_zxmy",
   "account_paid_from",
+  "select_supplier",
   "amended_from",
   "section_break_glei",
   "purchase_invoice_details"
@@ -38,8 +40,7 @@
    "fieldname": "from_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "From Date ",
-   "reqd": 1
+   "label": "From Date "
   },
   {
    "fieldname": "get_invoices",
@@ -58,14 +59,14 @@
    "fieldname": "purchase_invoice_details",
    "fieldtype": "Table",
    "label": "Purchase Invoice Details",
+   "no_copy": 1,
    "options": "Purchase Invoice Details"
   },
   {
    "fieldname": "to_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "To Date",
-   "reqd": 1
+   "label": "To Date"
   },
   {
    "fieldname": "select_all",
@@ -90,9 +91,16 @@
    "options": "Company"
   },
   {
+   "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
    "label": "Posting Date"
+  },
+  {
+   "fieldname": "select_supplier",
+   "fieldtype": "Table MultiSelect",
+   "label": "Select Supplier",
+   "options": "Child Supplier"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -103,10 +111,11 @@
    "link_fieldname": "custom_supplier_advance_payments"
   }
  ],
- "modified": "2025-03-14 15:20:52.141055",
+ "modified": "2025-03-15 21:58:19.688325",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Advance Payments",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

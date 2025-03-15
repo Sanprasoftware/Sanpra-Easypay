@@ -7,6 +7,10 @@ from frappe.model.document import Document
 
 class SupplierAdvancePayments(Document):
 	def before_save(self):
+		if not self.purchase_invoice_details:
+			frappe.throw("Purchase Invoice Details Cannot be empty")
+		if not self.get("purchase_invoice_details",{"check":1}):
+			frappe.throw("Select At least one invoice")
 		zero_rows = self.get("purchase_invoice_details",{"check":0})
 		for z in zero_rows:
 			self.purchase_invoice_details.remove(z)
@@ -16,7 +20,12 @@ class SupplierAdvancePayments(Document):
 		self.delete_payment_entries()
 	@frappe.whitelist()
 	def get_invoices(self):
-		all_invoices = frappe.get_all("Purchase Invoice",{"company":self.company,"status":["in",["Partly Paid","Unpaid","Overdue"]],"posting_date":["between",[self.from_date,self.to_date]],"custom_payment_entry_done":0},["name","supplier","supplier_name","posting_date","total_qty","outstanding_amount","total_net_weight","posting_date","credit_to","company"])
+		all_invoices = []
+		if self.from_date and self.to_date:
+			all_invoices = frappe.get_all("Purchase Invoice",{"company":self.company,"status":["in",["Partly Paid","Unpaid","Overdue"]],"posting_date":["between",[self.from_date,self.to_date]],"custom_payment_entry_done":0},["name","supplier","supplier_name","posting_date","total_qty","outstanding_amount","total_net_weight","posting_date","credit_to","company"])
+		elif self.select_supplier:
+			selected_suppliers = [str(i.supplier) for i in self.select_supplier]
+			all_invoices = frappe.get_all("Purchase Invoice",{"company":self.company,"status":["in",["Partly Paid","Unpaid","Overdue"]],"supplier":["in",selected_suppliers],"custom_payment_entry_done":0},["name","supplier","supplier_name","posting_date","total_qty","outstanding_amount","total_net_weight","posting_date","credit_to","company"])
 		for i in all_invoices:
 			self.append("purchase_invoice_details",{
 				"purchase_invoice":i.name,
