@@ -12,7 +12,6 @@ from datetime import datetime
 from frappe import _
 import os
 from frappe.model.document import Document
-# import xml.etree.ElementTree as ET
 
 
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -91,9 +90,9 @@ class SupplierBankPayment(Document):
 	@frappe.whitelist()
 	def get_pe_details(self):
 		if self.party:
-			filters = {"party":self.party,"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":["in",[0,1]]}
+			filters = {"party":self.party,"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}
 		else:
-			filters = {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":["in",[0,1]]}
+			filters = {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}
 		
 		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
 		if not pe_docs:
