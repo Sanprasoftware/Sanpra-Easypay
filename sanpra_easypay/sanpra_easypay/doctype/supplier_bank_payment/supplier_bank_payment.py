@@ -94,14 +94,18 @@ class SupplierBankPayment(Document):
 		else:
 			filters = {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}
 		
-		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
+		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","party_bank_account","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
 		BANK_PAYMENT_LIMIT = 0
 		for i in pe_docs:
 			is_skip = False
-			def_bank_acc,acc_no,ifsc_code = frappe.get_value("Supplier",i.get("party"),["default_party_bank_account","party_account_number,party_branch_code"]) or (None,None,None)
+			def_bank_acc = i.get("party_bank_account",None)
+			acc_no = ifsc_code = None
+			if def_bank_acc:
+				acc_no,ifsc_code = frappe.get_value("Bank Account",def_bank_acc,["bank_account_no","branch_code"]) or (None,None)
+
 			if not acc_no:
 				frappe.msgprint(f"Entry Skipped due to missing account No.for {i.get('party')}")
 				is_skip = True
@@ -310,7 +314,7 @@ class SupplierBankPayment(Document):
      
 @frappe.whitelist()
 def check_payment_status():
-	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None],"updated_party_payment_status":0},["name","file_sequence_number"])
+	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":["in",[1,2]],"file_sequence_number":["!=",None],"updated_party_payment_status":0},["name","file_sequence_number"])
 	for pd in payment_docs:
 		unique_id = pd.get("name")
 		file_seq_no = pd.get("file_sequence_number")
