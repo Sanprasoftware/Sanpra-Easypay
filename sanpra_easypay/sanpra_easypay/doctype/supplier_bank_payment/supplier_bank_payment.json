@@ -171,14 +171,13 @@
    "default": "0",
    "fieldname": "updated_party_payment_status",
    "fieldtype": "Check",
-   "label": "Updated Party Payment Status",
-   "read_only": 1
+   "label": "Updated Party Payment Status"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-14 23:04:55.477995",
+ "modified": "2025-03-20 09:33:03.704949",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",
