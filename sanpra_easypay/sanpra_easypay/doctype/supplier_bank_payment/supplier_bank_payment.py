@@ -65,6 +65,8 @@ class SupplierBankPayment(Document):
 		zero_rows = self.get("payment_entry_details",{"make_payment":0})
 		for z in zero_rows:
 			self.payment_entry_details.remove(z)
+		self.total_payee_count = len(self.get("payment_entry_details"))
+		self.total_payee_amount = sum(i.get("paid_amount",0) for i in self.get("payment_entry_details"))
 	@frappe.whitelist()
 	def on_update_after_submit(self):
 		self.validate()
@@ -94,7 +96,7 @@ class SupplierBankPayment(Document):
 		else:
 			filters = {"posting_date": ["between", [self.from_date, self.to_date]], "payment_type": "Pay","docstatus":0}
 		
-		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","party_bank_account","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
+		pe_docs = frappe.get_all("Payment Entry",filters, ["name","posting_date","paid_to","party","party_name","party_type","party_bank_account","paid_to_account_currency","paid_amount","custom_in_process_amount","custom_transferred_amount"])
 		if not pe_docs:
 			frappe.msgprint("No Data Found")
 		
@@ -133,6 +135,7 @@ class SupplierBankPayment(Document):
 					"posting_date":i.get("posting_date",""),
 					"account_currency_to":i.get("paid_to_account_currency",""),
 					"account_paid_to":i.get("paid_to",""),
+					"party_type":i.get("party_type",""),
 					"party":i.get("party",""),
 					"party_name":i.get("party_name",""),
 					"paid_amount":i.get("paid_amount",0) - (i.get("custom_transferred_amount",0) + i.get("custom_in_process_amount",0)),
@@ -146,6 +149,7 @@ class SupplierBankPayment(Document):
 				BANK_PAYMENT_LIMIT = BANK_PAYMENT_LIMIT + 1
 				if BANK_PAYMENT_LIMIT == 150:
 					break
+		
 
 
 	@frappe.whitelist()
@@ -426,39 +430,9 @@ def check_payment_status():
 							payment_detail.updated_on_payment_entry = 1
 					else:
 						frappe.msgprint(f"No payment entry details found for account number: {credit_account_number}")
-					# Optionally log an error or raise an exception here if necessary
-
-					# sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].transaction_response = transaction_response
-					# sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].transaction_remark = host_response_message
-					# # update = 1 or sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].updated_on_payment_entry 
-					# if transaction_status == "SUC":
-					# 	# if not update:
-					# 	amount = sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].paid_amount
-					# 	payment_entry = sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].payment_entry
-					# 	in_progress = frappe.get_value("Payment Entry", payment_entry, 'custom_in_process_amount')
-					# 	transferred = frappe.get_value("Payment Entry", payment_entry, 'custom_transferred_amount')
-					# 	# frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', in_progress - amount)
-					# 	# frappe.db.set_value("Payment Entry", payment_entry, 'custom_transferred_amount', transferred + amount)
-					# 	frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', 0)
-					# 	frappe.db.set_value("Payment Entry", payment_entry, 'custom_transferred_amount',amount)
-
-					# 	sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].updated_on_payment_entry = 1
-					# 	pe_doc = frappe.get_doc("Payment Entry",payment_entry)
-					# 	if pe_doc.docstatus == 0:
-					# 		try:
-					# 			pe_doc.submit()
-					# 		except Exception as e:
-					# 			sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].updated_on_payment_entry = 0
-					# 			frappe.log_error(f"Error occurred while submitting Payment Entry {pe_doc.name}: {str(e)}", "Payment Entry Submission Error")	
-					# else:
-					# 	# if not update:
-					# 	amount = sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].paid_amount
-					# 	payment_entry = sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].payment_entry
-					# 	in_progress = frappe.get_value("Payment Entry", payment_entry, 'custom_in_process_amount')
-					# 	# frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', in_progress - amount)
-					# 	frappe.db.set_value("Payment Entry", payment_entry, 'custom_in_process_amount', 0)
-					# 	sbp_doc.get("payment_entry_details",{"account_no":credit_account_number})[0].updated_on_payment_entry = 1
-			sbp_doc.updated_party_payment_status = 1
+					sbp_doc.updated_party_payment_status = 1
+			sbp_doc.total_payment_success_count = len(sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))
+			sbp_doc.total_payment_success_amount = sum(i.get("paid_amount",0) for i in sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))
 			sbp_doc.save()
 
 

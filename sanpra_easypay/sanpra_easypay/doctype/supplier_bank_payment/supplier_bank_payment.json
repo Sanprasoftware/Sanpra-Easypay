@@ -21,9 +21,16 @@
   "updated_party_payment_status",
   "section_break_knjb",
   "payment_entry_details",
+  "amended_from",
+  "section_break_vfzg",
+  "total_payee_count",
+  "total_payment_succees_count",
+  "column_break_dvsh",
+  "total_payee_amount",
+  "total_payment_success_amount",
+  "section_break_whpd",
   "header_string",
   "final_string",
-  "amended_from",
   "api_logs_tab",
   "otp_api_log_details",
   "bulk_payment_api_log_details",
@@ -135,7 +142,6 @@
   },
   {
    "allow_on_submit": 1,
-   "fetch_from": "account_paid_from.bank_account_no",
    "fieldname": "account_no",
    "fieldtype": "Data",
    "label": "Account No.",
@@ -172,12 +178,46 @@
    "fieldname": "updated_party_payment_status",
    "fieldtype": "Check",
    "label": "Updated Party Payment Status"
+  },
+  {
+   "fieldname": "section_break_vfzg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_payee_count",
+   "fieldtype": "Int",
+   "label": "Total Payee Count"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_payment_succees_count",
+   "fieldtype": "Int",
+   "label": "Total Payment Succees Count"
+  },
+  {
+   "fieldname": "column_break_dvsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_payee_amount",
+   "fieldtype": "Float",
+   "label": "Total Payee Amount"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_payment_success_amount",
+   "fieldtype": "Float",
+   "label": "Total Payment Success Amount"
+  },
+  {
+   "fieldname": "section_break_whpd",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-20 09:33:03.704949",
+ "modified": "2025-03-22 17:13:10.301446",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",
