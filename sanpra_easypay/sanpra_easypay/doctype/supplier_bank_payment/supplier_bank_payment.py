@@ -61,6 +61,8 @@ def decrypt_data(encrypted_data, encrypted_key):
 
     return plaintext.decode("utf-8")
 class SupplierBankPayment(Document):
+	def before_cancel(self):
+		frappe.throw("Cannot Cancel because Transaction already")
 	def before_submit(self):
 		zero_rows = self.get("payment_entry_details",{"make_payment":0})
 		for z in zero_rows:
@@ -75,6 +77,8 @@ class SupplierBankPayment(Document):
 			for pe in self.get("payment_entry_details"):
 				if pe.paid_amount > pe.payable_amount:
 					frappe.throw("Paid Amount cannot be greater than payable amount")
+		self.total_payee_count = len(self.get("payment_entry_details",{"make_payment":1}))
+		self.total_payee_amount = sum(i.get("paid_amount",0) for i in self.get("payment_entry_details",{"make_payment":1}))
 	
 	@frappe.whitelist()
 	def validate(self):
@@ -318,7 +322,7 @@ class SupplierBankPayment(Document):
      
 @frappe.whitelist()
 def check_payment_status():
-	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":["in",[1,2]],"file_sequence_number":["!=",None],"updated_party_payment_status":0},["name","file_sequence_number"])
+	payment_docs = frappe.get_all("Supplier Bank Payment",{"docstatus":1,"file_sequence_number":["!=",None],"updated_party_payment_status":0},["name","file_sequence_number"])
 	for pd in payment_docs:
 		unique_id = pd.get("name")
 		file_seq_no = pd.get("file_sequence_number")
@@ -431,8 +435,9 @@ def check_payment_status():
 					else:
 						frappe.msgprint(f"No payment entry details found for account number: {credit_account_number}")
 					sbp_doc.updated_party_payment_status = 1
-			sbp_doc.total_payment_success_count = len(sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))
-			sbp_doc.total_payment_success_amount = sum(i.get("paid_amount",0) for i in sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))
+			sbp_doc.total_payment_succees_count = len(sbp_doc.get("payment_entry_details",{"transaction_remark":"Payment Success"}))
+			sbp_doc.total_payment_success_amount = sum(i.get("paid_amount",0) for i in sbp_doc.get("payment_entry_details",{"transaction_remark":"Payment Success"}))
+			# frappe.throw(f'{len(sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))} {sum(i.get("paid_amount",0) for i in sbp_doc.get("Payment_entry_details",{"transaction_remark":"Payment Success"}))}')
 			sbp_doc.save()
 
 

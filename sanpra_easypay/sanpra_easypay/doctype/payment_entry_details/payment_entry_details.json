@@ -139,6 +139,7 @@
    "read_only": 1
   },
   {
+   "default": "Supplier",
    "fieldname": "party_type",
    "fieldtype": "Link",
    "label": "Party Type",
@@ -148,7 +149,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-22 17:06:42.501348",
+ "modified": "2025-03-22 17:40:21.858622",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Payment Entry Details",

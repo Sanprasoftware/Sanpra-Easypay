@@ -24,17 +24,18 @@
   "amended_from",
   "section_break_vfzg",
   "total_payee_count",
-  "total_payment_succees_count",
   "column_break_dvsh",
   "total_payee_amount",
+  "column_break_wzyy",
+  "total_payment_succees_count",
+  "column_break_qdey",
   "total_payment_success_amount",
-  "section_break_whpd",
-  "header_string",
-  "final_string",
   "api_logs_tab",
   "otp_api_log_details",
   "bulk_payment_api_log_details",
-  "payment_status_api_log_details"
+  "payment_status_api_log_details",
+  "header_string",
+  "final_string"
  ],
  "fields": [
   {
@@ -192,7 +193,8 @@
    "allow_on_submit": 1,
    "fieldname": "total_payment_succees_count",
    "fieldtype": "Int",
-   "label": "Total Payment Succees Count"
+   "label": "Total Payment Succees Count",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_dvsh",
@@ -207,17 +209,22 @@
    "allow_on_submit": 1,
    "fieldname": "total_payment_success_amount",
    "fieldtype": "Float",
-   "label": "Total Payment Success Amount"
+   "label": "Total Payment Success Amount",
+   "read_only": 1
   },
   {
-   "fieldname": "section_break_whpd",
-   "fieldtype": "Section Break"
+   "fieldname": "column_break_wzyy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qdey",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-22 17:13:10.301446",
+ "modified": "2025-03-22 18:33:28.638738",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
  "name": "Supplier Bank Payment",
