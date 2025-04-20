@@ -50,12 +50,12 @@ frappe.query_reports["Supplier Bank Payment Status"] = {
 			"options": ["","Payment Success","Other"],
 			"width": 100,
 			"reqd": 0,
-		},
-		{
-			"label": "DESC",
-			"fieldname": "desc",
-			"fieldtype": "Check",
-			"reqd": 0
-		},
+		}
+		// {
+		// 	"label": "DESC",
+		// 	"fieldname": "desc",
+		// 	"fieldtype": "Check",
+		// 	"reqd": 0
+		// },
 	]
 };

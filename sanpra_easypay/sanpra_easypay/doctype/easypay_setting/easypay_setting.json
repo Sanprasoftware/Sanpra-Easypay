@@ -31,17 +31,23 @@
   {
    "fieldname": "aggr_id",
    "fieldtype": "Data",
-   "label": "AGGR ID"
+   "in_list_view": 1,
+   "label": "AGGR ID",
+   "reqd": 1
   },
   {
    "fieldname": "corp_id",
    "fieldtype": "Data",
-   "label": "CORP ID"
+   "in_list_view": 1,
+   "label": "CORP ID",
+   "reqd": 1
   },
   {
    "fieldname": "urn",
    "fieldtype": "Data",
-   "label": "URN"
+   "in_list_view": 1,
+   "label": "URN",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_sopx",
@@ -50,12 +56,15 @@
   {
    "fieldname": "aggr_name",
    "fieldtype": "Data",
-   "label": "AGGR NAME"
+   "in_list_view": 1,
+   "label": "AGGR NAME",
+   "reqd": 1
   },
   {
    "fieldname": "user_id",
    "fieldtype": "Data",
-   "label": "USER ID"
+   "label": "USER ID",
+   "reqd": 1
   },
   {
    "fieldname": "api_details_section",
@@ -66,24 +75,28 @@
    "fieldname": "otp_api_endpoint_url",
    "fieldtype": "Small Text",
    "label": "OTP API Endpoint URL",
-   "max_height": "30px"
+   "max_height": "30px",
+   "reqd": 1
   },
   {
    "fieldname": "payment_api_endpoint_url",
    "fieldtype": "Small Text",
    "label": "Payment API Endpoint URL",
-   "max_height": "30px"
+   "max_height": "30px",
+   "reqd": 1
   },
   {
    "fieldname": "reverse_mis_api_endpoint_url",
    "fieldtype": "Small Text",
    "label": "Reverse Mis API Endpoint URL",
-   "max_height": "30px"
+   "max_height": "30px",
+   "reqd": 1
   },
   {
    "fieldname": "api_key",
    "fieldtype": "Data",
-   "label": "API Key"
+   "label": "API Key",
+   "reqd": 1
   },
   {
    "fieldname": "rsa_key_pair_details_section",
@@ -105,13 +118,14 @@
    "label": "Private Key (.pem)"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-02-26 13:38:54.371171",
+ "modified": "2025-04-20 16:00:23.139551",
  "modified_by": "Administrator",
  "module": "Sanpra Easypay",
- "name": "Supplier Bank Payment Setting",
+ "name": "EasyPay Setting",
  "owner": "Administrator",
  "permissions": [
   {

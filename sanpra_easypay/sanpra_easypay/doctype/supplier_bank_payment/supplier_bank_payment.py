@@ -14,21 +14,41 @@ import os
 from frappe.model.document import Document
 
 
-current_path = os.path.dirname(os.path.abspath(__file__))
-PUBLIC_KEY_FILE = os.path.join(current_path, "prod_pub_key.crt")
-PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
-OTP_API_URL = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Create"
-PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
-REVERSE_PAYMENT_URL = "https://apibankingone.icicibank.com/api/v1/ReverseMis"
-API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
+# current_path = os.path.dirname(os.path.abspath(__file__))
+# PUBLIC_KEY_FILE = os.path.join(current_path, "prod_pub_key.crt")
+# PRIVATE_KEY_FILE = os.path.join(current_path, "prod_priv_key.pem")
+# OTP_API_URL = "https://apibankingone.icicibank.com/api/Corporate/CIB/v1/Create"
+# PAYMENT_API_URL = "https://apibankingone.icicibank.com/api/v1/cibbulkpayment/bulkPayment"
+# REVERSE_PAYMENT_URL = "https://apibankingone.icicibank.com/api/v1/ReverseMis"
+# API_KEY = "XMEJXRZwBBa80zv06iVURuMaT3GcF66Y"
+# AGGR_ID = "BULK0079"
+# AGGR_NAME = "BASTAR"
+# CORP_ID = "596778175"
+# USER_ID = "MOHAMMAD"
+# URN = "SR263840153"
+
+PUBLIC_KEY_FILE = frappe.get_site_config().get('easypay_ssl_certificate_path')
+PRIVATE_KEY_FILE = frappe.get_site_config().get('easypay_private_key_pem')
+settings = frappe.get_value(
+    "EasyPay Setting",
+    "EasyPay Setting",
+    ['otp_api_endpoint_url', 'payment_api_endpoint_url', 'reverse_mis_api_endpoint_url', 
+     'api_key', 'aggr_id', 'aggr_name', 'corp_id', 'user_id', 'urn'],
+    as_dict=True
+)
+if not settings.api_key:
+    frappe.throw("Missing EasyPay Setting Data.")
+OTP_API_URL = settings.otp_api_endpoint_url
+PAYMENT_API_URL = settings.payment_api_endpoint_url
+REVERSE_PAYMENT_URL = settings.reverse_mis_api_endpoint_url
+API_KEY = settings.api_key
 SESSION_KEY = os.urandom(16)
 IV = os.urandom(16)
-
-AGGR_ID = "BULK0079"
-AGGR_NAME = "BASTAR"
-CORP_ID = "596778175"
-USER_ID = "MOHAMMAD"
-URN = "SR263840153"
+AGGR_ID = settings.aggr_id
+AGGR_NAME = settings.aggr_name
+CORP_ID = settings.corp_id
+USER_ID = settings.user_id
+URN = settings.urn
 
 
 def encrypt_data(data, session_key, iv):

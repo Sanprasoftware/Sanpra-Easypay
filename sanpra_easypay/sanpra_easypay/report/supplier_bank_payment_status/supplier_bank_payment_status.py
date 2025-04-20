@@ -11,12 +11,13 @@ def execute(filters=None):
 
 def get_columns(filters):
 	columns = [
+        {"label": "Supplier Bulk Payment", "fieldname": "parent", "fieldtype": "Link","options":"Supplier Bank Payment", "width": 170},
         {"label": "Party", "fieldname": "party", "fieldtype": "Link", "options": "Supplier", "width": 150},
         {"label": "Party Type", "fieldname": "party_type", "fieldtype": "Data", "width": 120},
-        {"label": "Party Name", "fieldname": "party_name", "fieldtype": "Data", "width": 200},
+        {"label": "Party Name", "fieldname": "party_name", "fieldtype": "Data", "width": 250},
 		{"label": "Posting Date", "fieldname": "posting_date", "fieldtype": "Date", "width": 120},
-        {"label": "Payment Entry", "fieldname": "payment_entry", "fieldtype": "Link", "options": "Payment Entry", "width": 150},
-        {"label": "Account Paid From", "fieldname": "account_paid_from", "fieldtype": "Data", "width": 200},
+        {"label": "Payment Entry", "fieldname": "payment_entry", "fieldtype": "Link", "options": "Payment Entry", "width": 200},
+        # {"label": "Account Paid From", "fieldname": "account_paid_from", "fieldtype": "Data", "width": 200},
         {"label": "Account Paid To", "fieldname": "account_paid_to", "fieldtype": "Data", "width": 200},
         {"label": "Paid Amount", "fieldname": "paid_amount", "fieldtype": "Currency", "width": 120},
         {"label": "Account No", "fieldname": "account_no", "fieldtype": "Data", "width": 150},
@@ -24,7 +25,6 @@ def get_columns(filters):
         # {"label": "Beneficiary String", "fieldname": "beneficiary_string", "fieldtype": "Data", "width": 300},
         {"label": "Transaction Remark", "fieldname": "transaction_remark", "fieldtype": "Data", "width": 200},
         {"label": "Transaction Amount", "fieldname": "transaction_amount", "fieldtype": "Currency", "width": 120},
-        # {"label": "Payable Amount", "fieldname": "payable_amount", "fieldtype": "Currency", "width": 120},
 	]
 	return columns
 
@@ -47,10 +47,11 @@ def get_data(filters=None):
         }
         filt["docstatus"] = status[filters.get("status")]
         
-    order_by = "paid_amount DESC" if filters.get("desc") else "paid_amount ASC"
-    data = frappe.get_all("Payment Entry Details",filt,["*"],order_by=order_by)
+    # order_by = "paid_amount DESC" if filters.get("desc") else "paid_amount ASC"
+    data = frappe.get_all("Payment Entry Details",filt,["*"])
     processed_data = []
     for row in data:
+        # frappe.throw(str(row))
         row["account_paid_from"] = frappe.get_value("Supplier Bank Payment", row.parent, "account_paid_from") if row.get("parent") else None
         processed_data.append({key: value for key, value in row.items() if key not in exclude_fields})
 
